@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, ViewStyle } from 'react-native';
 import { colors, radius, spacing, typography } from '../../theme';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'accent';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = {
@@ -91,6 +91,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.error,
     borderColor: colors.error,
   },
+  accent: {
+    backgroundColor: colors.accent,
+    borderColor: colors.accent,
+  },
 
   // States
   disabled: {
@@ -114,6 +118,9 @@ const styles = StyleSheet.create({
     color: colors.accent,
   },
   label_danger: {
+    color: '#fff',
+  },
+  label_accent: {
     color: '#fff',
   },
 

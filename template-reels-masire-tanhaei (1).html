@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تمپلیت ریلز غمگین — مسیر تنهایی</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@200;300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --sky-top:#12181a;
+    --sky-bot:#232c2b;
+    --road:#1a2020;
+    --road-line:#4c5a56;
+    --fog:#8fa39c;
+    --ink:#dfe6e1;
+    --ink-dim:#7c8a84;
+    --accent:#6b8a7c;
+    --accent-glow:#9ec2b0;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:#060807;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Vazirmatn', sans-serif;
+    padding:24px;
+  }
+
+  .phone{
+    position:relative;
+    width:360px;
+    height:720px;
+    border-radius:34px;
+    overflow:hidden;
+    background:linear-gradient(180deg, var(--sky-top) 0%, var(--sky-bot) 38%, #171c1b 100%);
+    box-shadow: 0 0 0 8px #000, 0 30px 80px rgba(0,0,0,0.7);
+    color:var(--ink);
+  }
+
+  /* distant low sun */
+  .sun{
+    position:absolute;
+    top:120px; left:50%;
+    transform:translateX(-50%);
+    width:120px; height:120px;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(158,194,176,0.35), transparent 70%);
+    filter:blur(6px);
+  }
+
+  /* fog layers */
+  .fog{
+    position:absolute;
+    left:0; right:0;
+    height:140px;
+    background:linear-gradient(180deg, transparent, rgba(143,163,156,0.12), transparent);
+    filter:blur(4px);
+    pointer-events:none;
+  }
+  .fog.f1{ top:180px; opacity:0.6; animation: drift 18s linear infinite; }
+  .fog.f2{ top:260px; opacity:0.4; animation: drift 24s linear infinite reverse; }
+  @keyframes drift{
+    0%{ transform:translateX(-6%);}
+    50%{ transform:translateX(6%);}
+    100%{ transform:translateX(-6%);}
+  }
+
+  /* road with perspective */
+  .road-wrap{
+    position:absolute;
+    left:0; right:0; bottom:0;
+    height:340px;
+    overflow:hidden;
+  }
+  .road{
+    position:absolute;
+    bottom:0; left:50%;
+    width:520px; height:340px;
+    background:var(--road);
+    clip-path: polygon(46% 0%, 54% 0%, 88% 100%, 12% 100%);
+    transform:translateX(-50%);
+  }
+  .center-line{
+    position:absolute;
+    bottom:0; left:50%;
+    width:6px; height:340px;
+    transform:translateX(-50%);
+    background-image: linear-gradient(var(--road-line) 60%, transparent 0%);
+    background-size: 6px 34px;
+    background-repeat: repeat-y;
+    clip-path: polygon(46% 0%, 54% 0%, 96% 100%, 4% 100%);
+    opacity:0.55;
+  }
+
+  /* walking figure, receding */
+  .figure{
+    position:absolute;
+    bottom:150px; left:50%;
+    transform:translateX(-50%);
+    width:10px; height:26px;
+    z-index:4;
+  }
+  .figure .head{
+    width:6px; height:6px;
+    border-radius:50%;
+    background:#0b0e0d;
+    margin:0 auto 1px;
+  }
+  .figure .body{
+    width:10px; height:19px;
+    background:#0b0e0d;
+    clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+  }
+
+  /* fading footprints */
+  .prints{
+    position:absolute; bottom:0; left:50%;
+    width:200px; height:150px;
+    transform:translateX(-50%);
+    z-index:3;
+  }
+  .print{
+    position:absolute;
+    width:4px; height:7px;
+    border-radius:50%;
+    background:rgba(0,0,0,0.35);
+  }
+
+  .content{
+    position:relative;
+    z-index:5;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:56px 28px 26px;
+  }
+
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--ink-dim);
+    margin-bottom:120px;
+  }
+
+  .quote{
+    margin-top:auto;
+    font-weight:300;
+    font-size:20px;
+    line-height:2;
+    color:var(--ink);
+    text-align:center;
+    max-width:280px;
+    letter-spacing:0.3px;
+  }
+  .quote b{ font-weight:600; color:var(--accent-glow); }
+
+  .sub{
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-top:10px;
+    margin-bottom:28px;
+  }
+
+  .timer{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .unit{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .box{
+    width:44px;
+    height:54px;
+    border:1px solid rgba(158,194,176,0.25);
+    border-radius:8px;
+    background:rgba(255,255,255,0.02);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:19px;
+    font-weight:400;
+    color:var(--ink);
+  }
+  .label{
+    font-size:10px;
+    color:var(--ink-dim);
+    letter-spacing:0.5px;
+  }
+
+  .caption{
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-top:22px;
+    margin-bottom:auto;
+    text-align:center;
+    line-height:1.9;
+  }
+
+  .scrub-row{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:20px;
+  }
+  .play{
+    width:34px; height:34px;
+    border-radius:50%;
+    border:1px solid rgba(158,194,176,0.3);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .play::before{
+    content:"";
+    border-style:solid;
+    border-width:6px 0 6px 10px;
+    border-color:transparent transparent transparent var(--ink);
+    margin-right:-2px;
+  }
+  .scrub{
+    flex:1;
+    height:3px;
+    border-radius:3px;
+    background:rgba(158,194,176,0.15);
+    position:relative;
+    overflow:hidden;
+  }
+  .scrub-fill{
+    position:absolute;
+    right:0; top:0; bottom:0;
+    width:33%;
+    background:linear-gradient(90deg, var(--accent), var(--accent-glow));
+    border-radius:3px;
+  }
+  .time-tag{
+    font-size:10px;
+    color:var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brand{
+    margin-top:16px;
+    font-size:10px;
+    color:#4e5a55;
+    letter-spacing:1.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="sun"></div>
+  <div class="fog f1"></div>
+  <div class="fog f2"></div>
+
+  <div class="road-wrap">
+    <div class="road"></div>
+    <div class="center-line"></div>
+    <div class="prints" id="prints"></div>
+    <div class="figure"><div class="head"></div><div class="body"></div></div>
+  </div>
+
+  <div class="content">
+    <div class="eyebrow">از این‌جا به بعد</div>
+
+    <div class="quote">یه جاده‌ست که فقط<br>خودم باید <b>تنها</b> تا آخرش برم</div>
+    <div class="sub">۹۰ روزه که این مسیر رو تنها می‌رم</div>
+
+    <div class="timer">
+      <div class="unit"><div class="box">۰۳</div><div class="label">ماه</div></div>
+      <div class="unit"><div class="box">۰۰</div><div class="label">روز</div></div>
+      <div class="unit"><div class="box">۰۶</div><div class="label">ساعت</div></div>
+      <div class="unit"><div class="box">۲۷</div><div class="label">دقیقه</div></div>
+      <div class="unit"><div class="box">۱۵</div><div class="label">ثانیه</div></div>
+    </div>
+
+    <div class="caption">هیچکس قرار نیست همه‌ی راه رو<br>کنارت باشه؛ ولی می‌تونی ادامه بدی</div>
+
+    <div class="scrub-row">
+      <div class="play"></div>
+      <div class="scrub"><div class="scrub-fill"></div></div>
+      <div class="time-tag">۰۰:۱۰ / ۰۰:۳۰</div>
+    </div>
+
+    <div class="brand">قالب ریلز · مسیر تنهایی</div>
+  </div>
+</div>
+
+<script>
+  const prints = document.getElementById('prints');
+  const total = 6;
+  for(let i=0;i<total;i++){
+    const p = document.createElement('div');
+    p.className='print';
+    const t = i/total;
+    const y = 140 - i*20;
+    const spread = 10 + i*2;
+    const side = i%2===0 ? -1 : 1;
+    p.style.bottom = y+'px';
+    p.style.left = (100 + side*spread)+'px';
+    p.style.opacity = (1 - t*0.9).toFixed(2);
+    p.style.transform = `scale(${1 - t*0.5})`;
+    prints.appendChild(p);
+  }
+</script>
+
+</body>
+</html>

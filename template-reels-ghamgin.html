@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تمپلیت ریلز غمگین — شمارش‌گر</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&family=EB+Garamond:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0a0e17;
+    --bg-panel:#121826;
+    --line:#26314a;
+    --ink:#dfe6ee;
+    --ink-dim:#8390a6;
+    --accent:#5b7ca3;
+    --accent-glow:#7ea3c9;
+    --moon:#e9edf3;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:#05070c;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Vazirmatn', sans-serif;
+    padding:24px;
+  }
+
+  .phone{
+    position:relative;
+    width:360px;
+    height:720px;
+    border-radius:34px;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 500px 300px at 50% -10%, rgba(91,124,163,0.18), transparent 60%),
+      linear-gradient(180deg, var(--bg-deep) 0%, #060911 100%);
+    box-shadow: 0 0 0 8px #000, 0 30px 80px rgba(0,0,0,0.7);
+    color:var(--ink);
+  }
+
+  /* rain */
+  .rain{position:absolute; inset:0; overflow:hidden; pointer-events:none; opacity:0.5;}
+  .drop{
+    position:absolute;
+    top:-40px;
+    width:1px;
+    height:60px;
+    background:linear-gradient(180deg, transparent, rgba(126,163,201,0.55), transparent);
+    animation-name: fall;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+  }
+  @keyframes fall{
+    to{ transform: translateY(760px); }
+  }
+
+  /* moon */
+  .moon{
+    position:absolute;
+    top:38px; left:50%;
+    transform:translateX(-50%);
+    width:46px; height:46px;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 35%, #ffffff, var(--moon) 55%, #b9c4d3 100%);
+    box-shadow:0 0 40px 10px rgba(233,237,243,0.25);
+  }
+  .moon::after{
+    content:"";
+    position:absolute;
+    width:38px; height:38px;
+    border-radius:50%;
+    background:#0a0e17;
+    top:-6px; left:14px;
+    box-shadow:0 0 20px 4px rgba(10,14,23,0.6);
+  }
+
+  .content{
+    position:relative;
+    z-index:2;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:104px 26px 28px;
+  }
+
+  .eyebrow{
+    font-size:11px;
+    letter-spacing:2px;
+    color:var(--ink-dim);
+    text-transform:uppercase;
+    margin-bottom:6px;
+    font-family:'EB Garamond', serif;
+  }
+
+  .quote{
+    font-family:'EB Garamond', serif;
+    font-style:italic;
+    font-size:19px;
+    line-height:1.9;
+    color:#c3cede;
+    text-align:center;
+    max-width:280px;
+    margin-bottom:10px;
+  }
+  .quote span{ color:var(--accent-glow); }
+
+  .sub{
+    font-size:12.5px;
+    color:var(--ink-dim);
+    margin-bottom:40px;
+  }
+
+  .timer{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
+  }
+  .unit{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+  }
+  .box{
+    width:46px;
+    height:56px;
+    border:1px solid var(--line);
+    border-radius:10px;
+    background:linear-gradient(180deg, rgba(255,255,255,0.03), transparent);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:20px;
+    font-weight:500;
+    color:var(--ink);
+    position:relative;
+  }
+  .box::after{
+    content:"";
+    position:absolute;
+    left:0; right:0; top:50%;
+    height:1px;
+    background:rgba(0,0,0,0.5);
+  }
+  .label{
+    font-size:10px;
+    color:var(--ink-dim);
+    letter-spacing:0.5px;
+  }
+  .colon{
+    align-self:center;
+    color:var(--line);
+    font-size:18px;
+    margin-top:-16px;
+  }
+
+  .caption{
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-top:26px;
+    margin-bottom:auto;
+    text-align:center;
+    line-height:1.8;
+  }
+
+  /* reels scrub bar */
+  .scrub-row{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:20px;
+  }
+  .play{
+    width:34px; height:34px;
+    border-radius:50%;
+    border:1px solid var(--line);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .play::before{
+    content:"";
+    border-style:solid;
+    border-width:6px 0 6px 10px;
+    border-color:transparent transparent transparent var(--ink);
+    margin-right:-2px;
+  }
+  .scrub{
+    flex:1;
+    height:3px;
+    border-radius:3px;
+    background:var(--line);
+    position:relative;
+    overflow:hidden;
+  }
+  .scrub-fill{
+    position:absolute;
+    right:0; top:0; bottom:0;
+    width:23%;
+    background:linear-gradient(90deg, var(--accent), var(--accent-glow));
+    border-radius:3px;
+  }
+  .scrub-fill::after{
+    content:"";
+    position:absolute;
+    left:-3px; top:50%;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--accent-glow);
+    transform:translateY(-50%);
+    box-shadow:0 0 8px 2px rgba(126,163,201,0.6);
+  }
+  .time-tag{
+    font-size:10px;
+    color:var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brand{
+    margin-top:18px;
+    font-size:10px;
+    color:#4c5771;
+    letter-spacing:1.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="rain" id="rain"></div>
+  <div class="moon"></div>
+
+  <div class="content">
+    <div class="eyebrow">هنوز باورم نشده</div>
+    <div class="quote">از روزی که رفتی، زمان برای من <span>ایستاده</span>؛ ولی ساعت هنوز دارد می‌شمرد</div>
+    <div class="sub">۲۳۱ روز از نبودنت گذشت</div>
+
+    <div class="timer">
+      <div class="unit"><div class="box">۰۷</div><div class="label">ماه</div></div>
+      <div class="unit"><div class="box">۱۹</div><div class="label">روز</div></div>
+      <div class="unit"><div class="box">۱۴</div><div class="label">ساعت</div></div>
+      <div class="unit"><div class="box">۴۲</div><div class="label">دقیقه</div></div>
+      <div class="unit"><div class="box">۰۹</div><div class="label">ثانیه</div></div>
+    </div>
+
+    <div class="caption">این تمپلیت رو برای هر کسی بفرست<br>که هنوز یه نفر رو می‌شمره</div>
+
+    <div class="scrub-row">
+      <div class="play"></div>
+      <div class="scrub"><div class="scrub-fill"></div></div>
+      <div class="time-tag">۰۰:۰۷ / ۰۰:۳۰</div>
+    </div>
+
+    <div class="brand">قالب ریلز · شمارش خاطره</div>
+  </div>
+</div>
+
+<script>
+  const rain = document.getElementById('rain');
+  const dropCount = 40;
+  for(let i=0;i<dropCount;i++){
+    const d = document.createElement('div');
+    d.className = 'drop';
+    d.style.left = Math.random()*100 + '%';
+    d.style.animationDuration = (1.2 + Math.random()*1.6) + 's';
+    d.style.animationDelay = (Math.random()*3) + 's';
+    d.style.height = (30 + Math.random()*40) + 'px';
+    rain.appendChild(d);
+  }
+</script>
+
+</body>
+</html>

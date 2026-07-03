@@ -10,6 +10,7 @@ import { Modal } from '../components/ui/Modal';
 import { ScreenContainer } from '../components/ui/ScreenContainer';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
+import { Alert as CustomAlert } from '../components/ui/Alert';
 import { colors, spacing, typography } from '../theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
@@ -87,11 +88,11 @@ export function JournalScreen() {
         quality: 0.8,
       });
 
-      if (!result.cancelled) {
+      if (!result.canceled && result.assets?.[0]?.uri) {
         const a: Attachment = {
           id: `${Date.now()}`,
           type: 'photo',
-          uri: result.uri,
+          uri: result.assets[0].uri,
           createdAt: new Date().toISOString(),
         };
         setAttachments((p) => [a, ...p]);
@@ -110,11 +111,11 @@ export function JournalScreen() {
       }
 
       const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
-      if (!result.cancelled) {
+      if (!result.canceled && result.assets?.[0]?.uri) {
         const a: Attachment = {
           id: `${Date.now()}`,
           type: 'photo',
-          uri: result.uri,
+          uri: result.assets[0].uri,
           createdAt: new Date().toISOString(),
         };
         setAttachments((p) => [a, ...p]);
@@ -135,7 +136,7 @@ export function JournalScreen() {
 
       await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
       const recording = new Audio.Recording();
-      await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+      await recording.prepareToRecordAsync(Audio.RecordingOptionsPresets.HIGH_QUALITY);
       await recording.startAsync();
       setRecordingInstance(recording);
       setIsRecording(true);
@@ -191,8 +192,8 @@ export function JournalScreen() {
       soundRef.current = sound;
       setPlayingUri(uri);
       await sound.playAsync();
-      sound.setOnPlaybackStatusUpdate((status) => {
-        if (status && status.didJustFinish) {
+      sound.setOnPlaybackStatusUpdate((status: any) => {
+        if (status?.didJustFinish) {
           sound.unloadAsync();
           soundRef.current = null;
           setPlayingUri(null);
@@ -286,10 +287,10 @@ export function JournalScreen() {
 
       {/* پیام خطا */}
       {entriesError && (
-        <Alert title="خطا" message={entriesError} variant="error" />
+        <CustomAlert title="خطا" message={entriesError} variant="error" />
       )}
       {addError && (
-        <Alert title="خطا" message={addError} variant="error" />
+        <CustomAlert title="خطا" message={addError} variant="error" />
       )}
 
       {/* آمار کوتاه */}

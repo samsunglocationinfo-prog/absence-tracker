@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>تمپلیت ریلز غمگین — دفترچه خاطرات</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&family=Aref+Ruqaa:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#ece4d3;
+    --paper-2:#e2d8c2;
+    --line:#c9bd9f;
+    --ink:#2b2c33;
+    --ink-dim:#726b5a;
+    --stain:#4a5a6b;
+    --stain-glow:#6f8398;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:#0e0d0b;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-family:'Vazirmatn', sans-serif;
+    padding:24px;
+  }
+
+  .phone{
+    position:relative;
+    width:360px;
+    height:720px;
+    border-radius:34px;
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse 500px 300px at 30% 0%, rgba(0,0,0,0.05), transparent 60%),
+      var(--paper);
+    box-shadow: 0 0 0 8px #000, 0 30px 80px rgba(0,0,0,0.7);
+    color:var(--ink);
+  }
+
+  /* paper texture: faint ruled lines */
+  .ruled{
+    position:absolute; inset:0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 33px,
+      rgba(0,0,0,0.045) 34px
+    );
+    pointer-events:none;
+  }
+  .margin-line{
+    position:absolute; top:0; bottom:0; right:56px;
+    width:1px;
+    background:rgba(150,60,60,0.28);
+    pointer-events:none;
+  }
+
+  /* ink stains */
+  .stain{
+    position:absolute;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(74,90,107,0.35), rgba(74,90,107,0.08) 60%, transparent 72%);
+    filter: blur(1px);
+    pointer-events:none;
+  }
+  .stain.one{ width:120px; height:120px; top:-30px; left:-30px; }
+  .stain.two{ width:70px; height:70px; bottom:60px; right:-20px; }
+
+  .tear{
+    position:absolute;
+    width:3px;
+    border-radius:2px;
+    background:linear-gradient(180deg, rgba(74,90,107,0.5), rgba(74,90,107,0.05));
+    animation:drip 5s linear infinite;
+  }
+  @keyframes drip{
+    0%{ transform:translateY(0); opacity:0.8;}
+    100%{ transform:translateY(70px); opacity:0;}
+  }
+
+  .content{
+    position:relative;
+    z-index:2;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:64px 30px 26px;
+  }
+
+  .dateline{
+    font-size:11px;
+    color:var(--ink-dim);
+    letter-spacing:1px;
+    margin-bottom:18px;
+    border-bottom:1px dashed var(--line);
+    padding-bottom:8px;
+    width:100%;
+    text-align:center;
+  }
+
+  .quote{
+    font-family:'Aref Ruqaa', serif;
+    font-weight:700;
+    font-size:24px;
+    line-height:2.1;
+    color:var(--ink);
+    text-align:center;
+    max-width:270px;
+    margin-bottom:10px;
+  }
+  .quote span{ color:var(--stain); text-decoration: underline wavy rgba(74,90,107,0.5); text-underline-offset:5px;}
+
+  .sub{
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-bottom:34px;
+  }
+
+  .timer{
+    display:flex;
+    gap:7px;
+    margin-bottom:16px;
+  }
+  .unit{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:7px;
+  }
+  .box{
+    width:42px;
+    height:52px;
+    border:1.5px solid var(--ink);
+    border-radius:1px;
+    background:transparent;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:19px;
+    font-weight:500;
+    color:var(--ink);
+    position:relative;
+  }
+  .box::before, .box::after{
+    content:"";
+    position:absolute;
+    background:rgba(43,44,51,0.55);
+    height:1px;
+    width:140%;
+    left:-20%;
+  }
+  .box::before{ top:6px; transform:rotate(-8deg); }
+  .box::after{ top:22px; transform:rotate(6deg); }
+  .label{
+    font-size:10px;
+    color:var(--ink-dim);
+    letter-spacing:0.5px;
+  }
+
+  .caption{
+    font-size:12px;
+    color:var(--ink-dim);
+    margin-top:6px;
+    margin-bottom:auto;
+    text-align:center;
+    line-height:1.9;
+  }
+
+  .scrub-row{
+    width:100%;
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-top:18px;
+  }
+  .play{
+    width:32px; height:32px;
+    border-radius:50%;
+    border:1.5px solid var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-shrink:0;
+  }
+  .play::before{
+    content:"";
+    border-style:solid;
+    border-width:6px 0 6px 9px;
+    border-color:transparent transparent transparent var(--ink);
+    margin-right:-2px;
+  }
+  .scrub{
+    flex:1;
+    height:2px;
+    background:var(--line);
+    position:relative;
+  }
+  .scrub-fill{
+    position:absolute;
+    right:0; top:-2px; bottom:-2px;
+    width:64%;
+    background:var(--stain);
+    border-radius:2px;
+  }
+  .scrub-fill::after{
+    content:"";
+    position:absolute;
+    left:-4px; top:50%;
+    width:8px; height:8px;
+    border-radius:50%;
+    background:var(--stain-glow);
+    transform:translateY(-50%);
+  }
+  .time-tag{
+    font-size:10px;
+    color:var(--ink-dim);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .brand{
+    margin-top:16px;
+    font-size:10px;
+    color:#8a8067;
+    letter-spacing:1.5px;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="ruled"></div>
+  <div class="margin-line"></div>
+  <div class="stain one"></div>
+  <div class="stain two"></div>
+  <div class="tear" style="left:22%; top:120px; height:30px; animation-delay:0.3s;"></div>
+  <div class="tear" style="left:76%; top:200px; height:20px; animation-delay:2.1s;"></div>
+
+  <div class="content">
+    <div class="dateline">دفترچه‌ی من — صفحه‌ی ۱۴۲</div>
+
+    <div class="quote">هر روز یه خط رو تقویم می‌کِشم<br>ولی جای خالیِ <span>تو</span> پاک نمیشه</div>
+    <div class="sub">۱۵۶ روزه که این خط‌ها رو می‌کشم</div>
+
+    <div class="timer">
+      <div class="unit"><div class="box">۰۵</div><div class="label">ماه</div></div>
+      <div class="unit"><div class="box">۱۱</div><div class="label">روز</div></div>
+      <div class="unit"><div class="box">۰۹</div><div class="label">ساعت</div></div>
+      <div class="unit"><div class="box">۱۸</div><div class="label">دقیقه</div></div>
+      <div class="unit"><div class="box">۴۴</div><div class="label">ثانیه</div></div>
+    </div>
+
+    <div class="caption">اگه توام یه خطی داری که هنوز می‌کِشی<br>این صفحه رو برای خودت نگه‌دار</div>
+
+    <div class="scrub-row">
+      <div class="play"></div>
+      <div class="scrub"><div class="scrub-fill"></div></div>
+      <div class="time-tag">۰۰:۱۹ / ۰۰:۳۰</div>
+    </div>
+
+    <div class="brand">قالب ریلز · دفترچه‌ی دلتنگی</div>
+  </div>
+</div>
+
+</body>
+</html>

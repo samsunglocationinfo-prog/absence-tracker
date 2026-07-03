@@ -7,6 +7,7 @@ import { HomeScreen } from '../screens/HomeScreen';
 import { JournalScreen } from '../screens/JournalScreen';
 import { AnalyticsScreen } from '../screens/AnalyticsScreen';
 import { EntryDetailScreen } from '../screens/EntryDetailScreen';
+import { ReelStudioScreen } from '../screens/ReelStudioScreen';
 import { Button } from '../components/ui/Button';
 import { colors } from '../theme';
 
@@ -25,7 +26,7 @@ function JournalStack() {
           headerRight: () => <Button title="جدید" onPress={() => navigation.navigate('JournalList', { create: true })} size="sm" />,
         })}
       />
-      <Stack.Screen name="EntryDetail" component={EntryDetailScreen} options={{ title: 'جزئیات' }} />
+      <Stack.Screen name="EntryDetail" component={EntryDetailScreen as React.ComponentType<any>} options={{ title: 'جزئیات' }} />
     </Stack.Navigator>
   );
 }
@@ -51,7 +52,13 @@ export function AppNavigator() {
           },
           tabBarIcon: ({ color, size }) => {
             const iconName =
-              route.name === 'Home' ? 'home-outline' : route.name === 'Journal' ? 'journal-outline' : 'analytics-outline';
+              route.name === 'Home'
+                ? 'home-outline'
+                : route.name === 'Journal'
+                  ? 'journal-outline'
+                  : route.name === 'Reels'
+                    ? 'film-outline'
+                    : 'analytics-outline';
 
             return <Ionicons name={iconName as never} size={size} color={color} />;
           },
@@ -59,6 +66,7 @@ export function AppNavigator() {
       >
         <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Timeline' }} />
         <Tab.Screen name="Journal" component={JournalStack} options={{ title: 'Journal' }} />
+        <Tab.Screen name="Reels" component={ReelStudioScreen} options={{ title: 'Reels' }} />
         <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Insights' }} />
       </Tab.Navigator>
     </NavigationContainer>
