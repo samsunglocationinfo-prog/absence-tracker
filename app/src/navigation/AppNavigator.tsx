@@ -1,13 +1,34 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Ionicons } from '@expo/vector-icons';
 import { HomeScreen } from '../screens/HomeScreen';
 import { JournalScreen } from '../screens/JournalScreen';
 import { AnalyticsScreen } from '../screens/AnalyticsScreen';
+import { EntryDetailScreen } from '../screens/EntryDetailScreen';
+import { Button } from '../components/ui/Button';
 import { colors } from '../theme';
 
 const Tab = createBottomTabNavigator();
+const Stack = createNativeStackNavigator();
+
+function JournalStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="JournalList"
+        component={JournalScreen}
+        options={({ navigation }) => ({
+          title: 'Journal',
+          headerShown: true,
+          headerRight: () => <Button title="جدید" onPress={() => navigation.navigate('JournalList', { create: true })} size="sm" />,
+        })}
+      />
+      <Stack.Screen name="EntryDetail" component={EntryDetailScreen} options={{ title: 'جزئیات' }} />
+    </Stack.Navigator>
+  );
+}
 
 export function AppNavigator() {
   return (
@@ -37,7 +58,7 @@ export function AppNavigator() {
         })}
       >
         <Tab.Screen name="Home" component={HomeScreen} options={{ title: 'Timeline' }} />
-        <Tab.Screen name="Journal" component={JournalScreen} options={{ title: 'Journal' }} />
+        <Tab.Screen name="Journal" component={JournalStack} options={{ title: 'Journal' }} />
         <Tab.Screen name="Analytics" component={AnalyticsScreen} options={{ title: 'Insights' }} />
       </Tab.Navigator>
     </NavigationContainer>

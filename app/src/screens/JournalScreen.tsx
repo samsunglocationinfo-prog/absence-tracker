@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useState, useMemo, useRef } from 'react';
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Platform, Alert } from 'react-native';
 import { AppHeader } from '../components/ui/AppHeader';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -12,8 +12,10 @@ import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
 import { Alert } from '../components/ui/Alert';
 import { colors, spacing, typography } from '../theme';
+import * as ImagePicker from 'expo-image-picker';
+import { Audio } from 'expo-av';
 import { JournalEntry, MoodType, Attachment } from '../types/journal';
-import { useMemories, useAddMemory, useDeleteMemory, useMoodStats } from '../hooks/useMemory';
+import { useMemories, useAddMemory, useDeleteMemory, useMoodStats, useUpdateMemory } from '../hooks/useMemory';
 
 const MOODS: MoodType[] = ['آرام', 'خوشحال', 'غمگین', 'نگران', 'خسته', 'انرژی دار'];
 
@@ -21,6 +23,7 @@ export function JournalScreen() {
   const { entries, isLoading: entriesLoading, error: entriesError } = useMemories();
   const { addEntry, isLoading: addLoading, error: addError } = useAddMemory();
   const { deleteEntry, deleteAllEntries, isLoading: deleteLoading } = useDeleteMemory();
+  const { updateEntry, isLoading: updateLoading, error: updateError } = useUpdateMemory();
   const moodStats = useMoodStats();
 
   // فیلترهای صفحه
@@ -34,6 +37,12 @@ export function JournalScreen() {
   const [mood, setMood] = useState<MoodType>('آرام');
   const [showClearWarning, setShowClearWarning] = useState(false);
   const [attachments, setAttachments] = useState<Attachment[]>([]);
+  const [attachmentUri, setAttachmentUri] = useState<string>('');
+  const [attachmentType, setAttachmentType] = useState<'photo' | 'audio'>('photo');
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingInstance, setRecordingInstance] = useState<Audio.Recording | null>(null);
+  const soundRef = useRef<Audio.Sound | null>(null);
+  const [playingUri, setPlayingUri] = useState<string | null>(null);
 
   // فیلتر کردن ورودی‌ها بر اساس حالت روحی انتخاب‌شده
   const filteredEntries = useMemo(() => {
@@ -65,17 +74,157 @@ export function JournalScreen() {
     return isValid;
   };
 
+  // --- Image picker helpers ---
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('اجازه مورد نیاز', 'دسترسی به گالری نیاز است');
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 0.8,
+      });
+
+      if (!result.cancelled) {
+        const a: Attachment = {
+          id: `${Date.now()}`,
+          type: 'photo',
+          uri: result.uri,
+          createdAt: new Date().toISOString(),
+        };
+        setAttachments((p) => [a, ...p]);
+      }
+    } catch (error) {
+      console.error('pickImage error', error);
+    }
+  };
+
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('اجازه مورد نیاز', 'دسترسی به دوربین نیاز است');
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({ quality: 0.8 });
+      if (!result.cancelled) {
+        const a: Attachment = {
+          id: `${Date.now()}`,
+          type: 'photo',
+          uri: result.uri,
+          createdAt: new Date().toISOString(),
+        };
+        setAttachments((p) => [a, ...p]);
+      }
+    } catch (error) {
+      console.error('takePhoto error', error);
+    }
+  };
+
+  // --- Audio recording helpers ---
+  const startRecording = async () => {
+    try {
+      const { status } = await Audio.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('اجازه مورد نیاز', 'دسترسی به میکروفون نیاز است');
+        return;
+      }
+
+      await Audio.setAudioModeAsync({ allowsRecordingIOS: true, playsInSilentModeIOS: true });
+      const recording = new Audio.Recording();
+      await recording.prepareToRecordAsync(Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY);
+      await recording.startAsync();
+      setRecordingInstance(recording);
+      setIsRecording(true);
+    } catch (error) {
+      console.error('startRecording error', error);
+    }
+  };
+
+  const stopRecording = async () => {
+    try {
+      if (!recordingInstance) return;
+      await recordingInstance.stopAndUnloadAsync();
+      const uri = recordingInstance.getURI();
+      setRecordingInstance(null);
+      setIsRecording(false);
+
+      if (uri) {
+        const a: Attachment = {
+          id: `${Date.now()}`,
+          type: 'audio',
+          uri,
+          createdAt: new Date().toISOString(),
+        };
+        setAttachments((p) => [a, ...p]);
+      }
+    } catch (error) {
+      console.error('stopRecording error', error);
+    }
+  };
+
+  const playAttachment = async (uri: string) => {
+    try {
+      if (playingUri === uri) {
+        // stop
+        if (soundRef.current) {
+          await soundRef.current.stopAsync();
+          await soundRef.current.unloadAsync();
+          soundRef.current = null;
+        }
+        setPlayingUri(null);
+        return;
+      }
+
+      // stop any existing
+      if (soundRef.current) {
+        await soundRef.current.stopAsync();
+        await soundRef.current.unloadAsync();
+        soundRef.current = null;
+        setPlayingUri(null);
+      }
+
+      const { sound } = await Audio.Sound.createAsync({ uri });
+      soundRef.current = sound;
+      setPlayingUri(uri);
+      await sound.playAsync();
+      sound.setOnPlaybackStatusUpdate((status) => {
+        if (status && status.didJustFinish) {
+          sound.unloadAsync();
+          soundRef.current = null;
+          setPlayingUri(null);
+        }
+      });
+    } catch (error) {
+      console.error('playAttachment error', error);
+    }
+  };
+
   const handleSave = async () => {
     if (!validateForm()) return;
 
     try {
-      await addEntry({
-        title: title.trim(),
-        reflection: reflection.trim(),
-        mood,
-        tags: [],
-        attachments: attachments.length > 0 ? attachments : undefined,
-      });
+      if (editingId) {
+        // update existing
+        await updateEntry(editingId, {
+          title: title.trim(),
+          reflection: reflection.trim(),
+          mood,
+          attachments: attachments.length > 0 ? attachments : undefined,
+        });
+      } else {
+        await addEntry({
+          title: title.trim(),
+          reflection: reflection.trim(),
+          mood,
+          tags: [],
+          attachments: attachments.length > 0 ? attachments : undefined,
+        });
+      }
 
       // ریست فرم
       setTitle('');
@@ -89,27 +238,20 @@ export function JournalScreen() {
     }
   };
 
-  // تبدیل تاریخ به فرمت دقیق‌تر
+  // تبدیل تاریخ به فرمت دقیق‌تر شامل ثانیه
   const formatDetailedDate = (dateString: string): string => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('fa-IR', {
-      weekday: 'long',
+    return date.toLocaleString('fa-IR', {
+      weekday: 'short',
       year: 'numeric',
-      month: 'long',
+      month: 'short',
       day: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
     });
   };
-      setReflection('');
-      setMood('آرام');
-      setVisible(false);
-      setEditingId(null);
-    } catch (error) {
-      console.error('خطا در ذخیره‌سازی:', error);
-    }
-  };
+
 
   const handleDelete = async (id: string) => {
     await deleteEntry(id);
@@ -178,6 +320,20 @@ export function JournalScreen() {
         hint="مجموعه‌ای زنده از بازتاب‌های شما."
       />
 
+      {/* فیلتر مود */}
+      <View style={{ paddingHorizontal: spacing.md, marginTop: spacing.sm }}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+          <TouchableOpacity onPress={() => setSelectedMood('همه')}>
+            <Chip label="همه" active={selectedMood === 'همه'} />
+          </TouchableOpacity>
+          {MOODS.map((m) => (
+            <TouchableOpacity key={m} onPress={() => setSelectedMood(m)}>
+              <Chip label={m} active={selectedMood === m} />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+
       {/* کارت اطلاعات */}
       <Card style={styles.card}>
         <Text style={styles.title}>یادآوری‌های شما اینجا نمایش خواهند یافت</Text>
@@ -219,7 +375,7 @@ export function JournalScreen() {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
         >
-          {entries.map((entry) => (
+            {filteredEntries.map((entry) => (
             <Card key={entry.id} style={styles.entryCard}>
               <View style={styles.entryHeader}>
                 <View style={styles.entryTitleContainer}>
@@ -250,17 +406,16 @@ export function JournalScreen() {
 
               <Text style={styles.entryReflection}>{entry.reflection}</Text>
 
+              {entry.attachments && entry.attachments.length > 0 && (
+                <View style={{ marginTop: spacing.sm }}>
+                  <Text style={{ color: colors.textTertiary, fontSize: typography.caption }}>
+                    {`پیوست‌ها: ${entry.attachments.map((a) => a.type).join(', ')}`}
+                  </Text>
+                </View>
+              )}
+
               <View style={styles.entryFooter}>
-                <Text style={styles.entryDate}>
-                  {new Date(entry.createdAt).toLocaleDateString('fa-IR', {
-                    weekday: 'short',
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
+                <Text style={styles.entryDate}>{formatDetailedDate(entry.createdAt)}</Text>
                 {entry.updatedAt !== entry.createdAt && (
                   <Text style={styles.entryUpdated}>(ویرایش‌شده)</Text>
                 )}
@@ -337,6 +492,61 @@ export function JournalScreen() {
           onChangeText={(text) => setMood(text as MoodType)}
           helperText={`موارد: ${MOODS.join('، ')}`}
         />
+
+        <Input
+          label="افزودن پیوست (آدرس)"
+          placeholder="https://... یا مسیر فایل"
+          value={attachmentUri}
+          onChangeText={(t) => setAttachmentUri(t)}
+        />
+
+        <Input
+          label="نوع پیوست"
+          placeholder="photo یا audio"
+          value={attachmentType}
+          onChangeText={(t) => setAttachmentType(t as 'photo' | 'audio')}
+        />
+
+        <View style={{ marginTop: spacing.sm }}>
+          <Button
+            title="افزودن پیوست"
+            onPress={() => {
+              if (!attachmentUri.trim()) return;
+              const a: Attachment = {
+                id: `${Date.now()}`,
+                type: attachmentType,
+                uri: attachmentUri.trim(),
+                createdAt: new Date().toISOString(),
+              };
+              setAttachments((prev) => [a, ...prev]);
+              setAttachmentUri('');
+            }}
+            fullWidth
+          />
+
+          <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
+            <Button title="گالری" onPress={pickImage} />
+            <Button title="دوربین" onPress={takePhoto} />
+            {!isRecording ? (
+              <Button title="شروع ضبط" variant="accent" onPress={startRecording} />
+            ) : (
+              <Button title="پایان ضبط" variant="danger" onPress={stopRecording} />
+            )}
+          </View>
+
+          {attachments.length > 0 && (
+            <View style={{ marginTop: spacing.sm }}>
+              {attachments.map((att) => (
+                <View key={att.id} style={{ marginTop: spacing.xs, flexDirection: 'row', alignItems: 'center', gap: spacing.xs }}>
+                  <Text style={{ color: colors.textTertiary }}>{att.type} - {att.uri}</Text>
+                  {att.type === 'audio' && (
+                    <Button title={playingUri === att.uri ? 'توقف' : 'پخش'} size="sm" onPress={() => playAttachment(att.uri)} />
+                  )}
+                </View>
+              ))}
+            </View>
+          )}
+        </View>
       </Modal>
 
       {/* مودال تأیید حذف */}
