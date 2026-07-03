@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Platform, Alert } from 'react-native';
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Platform, Alert as NativeAlert } from 'react-native';
 import { AppHeader } from '../components/ui/AppHeader';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
@@ -10,7 +10,6 @@ import { Modal } from '../components/ui/Modal';
 import { ScreenContainer } from '../components/ui/ScreenContainer';
 import { SectionHeader } from '../components/ui/SectionHeader';
 import { Badge } from '../components/ui/Badge';
-import { Alert } from '../components/ui/Alert';
 import { colors, spacing, typography } from '../theme';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
@@ -79,7 +78,7 @@ export function JournalScreen() {
     try {
       const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('اجازه مورد نیاز', 'دسترسی به گالری نیاز است');
+        NativeAlert.alert('اجازه مورد نیاز', 'دسترسی به گالری نیاز است');
         return;
       }
 
@@ -106,7 +105,7 @@ export function JournalScreen() {
     try {
       const { status } = await ImagePicker.requestCameraPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('اجازه مورد نیاز', 'دسترسی به دوربین نیاز است');
+        NativeAlert.alert('اجازه مورد نیاز', 'دسترسی به دوربین نیاز است');
         return;
       }
 
@@ -130,7 +129,7 @@ export function JournalScreen() {
     try {
       const { status } = await Audio.requestPermissionsAsync();
       if (status !== 'granted') {
-        Alert.alert('اجازه مورد نیاز', 'دسترسی به میکروفون نیاز است');
+        NativeAlert.alert('اجازه مورد نیاز', 'دسترسی به میکروفون نیاز است');
         return;
       }
 
