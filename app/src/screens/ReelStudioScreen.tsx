@@ -110,6 +110,18 @@ const REEL_TEMPLATES: ReelTemplate[] = [
   },
 ];
 
+const formatPersianClockValue = (value: number) =>
+  String(value).padStart(2, '0').replace(/\d/g, (digit) => '۰۱۲۳۴۵۶۷۸۹'[Number(digit)]);
+
+const getClockParts = (date: Date) => ({
+  year: formatPersianClockValue(date.getFullYear()),
+  month: formatPersianClockValue(date.getMonth() + 1),
+  day: formatPersianClockValue(date.getDate()),
+  hour: formatPersianClockValue(date.getHours()),
+  minute: formatPersianClockValue(date.getMinutes()),
+  second: formatPersianClockValue(date.getSeconds()),
+});
+
 export function ReelStudioScreen() {
   const [soundtrackUri, setSoundtrackUri] = useState('');
   const [photos, setPhotos] = useState<ReelPhoto[]>([]);
@@ -122,6 +134,7 @@ export function ReelStudioScreen() {
   const [isExporting, setIsExporting] = useState(false);
   const [exportUrl, setExportUrl] = useState('');
   const [selectedTemplateId, setSelectedTemplateId] = useState(REEL_TEMPLATES[0].id);
+  const [startedAt, setStartedAt] = useState<Date | null>(null);
   const soundRef = useRef<Audio.Sound | null>(null);
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const fadeAnim = useRef(new Animated.Value(1)).current;
@@ -271,6 +284,7 @@ export function ReelStudioScreen() {
     setIsPlaying(false);
     setRemaining(duration);
     setActivePhotoIndex(0);
+    setStartedAt(null);
   };
 
   const removePhoto = (id: string) => {
@@ -289,6 +303,7 @@ export function ReelStudioScreen() {
     setIsPlaying(true);
     setRemaining(duration);
     setActivePhotoIndex(0);
+    setStartedAt(new Date());
     await playSoundtrack();
   };
 
@@ -316,6 +331,7 @@ export function ReelStudioScreen() {
       const selectedTemplate = REEL_TEMPLATES.find((template) => template.id === selectedTemplateId) ?? REEL_TEMPLATES[0];
       const inputName = 'template-frame.png';
       const outputName = 'output.mp4';
+      const clockParts = getClockParts(startedAt ?? new Date());
       const timeLabel = liveTime || new Date().toLocaleString('fa-IR', {
         hour: '2-digit',
         minute: '2-digit',
@@ -380,11 +396,11 @@ export function ReelStudioScreen() {
               context.fillStyle = '#9c8d80';
               context.fillText(label, x + 48, y + 104);
             };
-            timerBox(130, 1320, '۱۳', 'ماه');
-            timerBox(250, 1320, '۰۷', 'روز');
-            timerBox(370, 1320, '۰۳', 'ساعت');
-            timerBox(490, 1320, '۵۱', 'دقیقه');
-            timerBox(610, 1320, '۲۶', 'ثانیه');
+            timerBox(130, 1320, clockParts.month, 'ماه');
+            timerBox(250, 1320, clockParts.day, 'روز');
+            timerBox(370, 1320, clockParts.hour, 'ساعت');
+            timerBox(490, 1320, clockParts.minute, 'دقیقه');
+            timerBox(610, 1320, clockParts.second, 'ثانیه');
             context.font = '400 28px sans-serif';
             context.fillStyle = '#9c8d80';
             context.fillText(selectedTemplate.caption, 540, 1530);
@@ -421,11 +437,11 @@ export function ReelStudioScreen() {
               context.font = '400 20px sans-serif';
               context.fillText(label, x + 45, y + 104);
             };
-            timerBox(90, 620, '۰۵', 'ماه');
-            timerBox(220, 620, '۱۱', 'روز');
-            timerBox(350, 620, '۰۹', 'ساعت');
-            timerBox(480, 620, '۱۸', 'دقیقه');
-            timerBox(610, 620, '۴۴', 'ثانیه');
+            timerBox(90, 620, clockParts.month, 'ماه');
+            timerBox(220, 620, clockParts.day, 'روز');
+            timerBox(350, 620, clockParts.hour, 'ساعت');
+            timerBox(480, 620, clockParts.minute, 'دقیقه');
+            timerBox(610, 620, clockParts.second, 'ثانیه');
             context.font = '400 28px sans-serif';
             context.fillText(selectedTemplate.caption, 540, 1520);
           } else if (selectedTemplate.style === 'ghamgin') {
@@ -460,11 +476,11 @@ export function ReelStudioScreen() {
               context.fillStyle = '#8390a6';
               context.fillText(label, x + 50, y + 106);
             };
-            timerBox(90, 620, '۰۷', 'ماه');
-            timerBox(220, 620, '۱۹', 'روز');
-            timerBox(350, 620, '۱۴', 'ساعت');
-            timerBox(480, 620, '۴۲', 'دقیقه');
-            timerBox(610, 620, '۰۹', 'ثانیه');
+            timerBox(90, 620, clockParts.month, 'ماه');
+            timerBox(220, 620, clockParts.day, 'روز');
+            timerBox(350, 620, clockParts.hour, 'ساعت');
+            timerBox(480, 620, clockParts.minute, 'دقیقه');
+            timerBox(610, 620, clockParts.second, 'ثانیه');
             context.font = '400 28px sans-serif';
             context.fillText(selectedTemplate.caption, 540, 1500);
           } else {
@@ -501,11 +517,11 @@ export function ReelStudioScreen() {
               context.fillStyle = '#7c8a84';
               context.fillText(label, x + 50, y + 106);
             };
-            timerBox(90, 620, '۰۳', 'ماه');
-            timerBox(220, 620, '۰۰', 'روز');
-            timerBox(350, 620, '۰۶', 'ساعت');
-            timerBox(480, 620, '۲۷', 'دقیقه');
-            timerBox(610, 620, '۱۵', 'ثانیه');
+            timerBox(90, 620, clockParts.month, 'ماه');
+            timerBox(220, 620, clockParts.day, 'روز');
+            timerBox(350, 620, clockParts.hour, 'ساعت');
+            timerBox(480, 620, clockParts.minute, 'دقیقه');
+            timerBox(610, 620, clockParts.second, 'ثانیه');
             context.font = '400 28px sans-serif';
             context.fillText(selectedTemplate.caption, 540, 1520);
           }
@@ -579,6 +595,7 @@ export function ReelStudioScreen() {
   const activePhoto = photos[activePhotoIndex] ?? null;
   const segmentDuration = Math.max(2, Math.floor(duration / Math.max(photos.length, 1)));
   const selectedTemplate = REEL_TEMPLATES.find((template) => template.id === selectedTemplateId) ?? REEL_TEMPLATES[0];
+  const previewClock = getClockParts(startedAt ?? new Date());
 
   return (
     <ScreenContainer style={styles.screen}>
@@ -697,6 +714,7 @@ export function ReelStudioScreen() {
               <View style={[styles.glassOverlay, { backgroundColor: selectedTemplate.overlay }]}>
                 {selectedTemplate.style === 'khatereh' ? (
                   <View style={styles.templatePreviewStack}>
+                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
                     <View style={styles.khaterehPolaroid}>
                       <View style={styles.khaterehFrame} />
                       <Text style={styles.khaterehFrameLabel}>تابستون ۱۴۰۱</Text>
@@ -704,7 +722,7 @@ export function ReelStudioScreen() {
                     <Text style={styles.khaterehQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.khaterehSub}>۴۱۲ روز از آخرین باری که دیدمت</Text>
                     <View style={styles.timerRow}>
-                      {['۱۳','۰۷','۰۳','۵۱','۲۶'].map((value, index) => (
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
                         <View key={`${value}-${index}`} style={styles.timerUnitBox}>
                           <Text style={styles.timerUnitValue}>{value}</Text>
                         </View>
@@ -716,11 +734,12 @@ export function ReelStudioScreen() {
 
                 {selectedTemplate.style === 'daftarcheh' ? (
                   <View style={styles.templatePreviewStack}>
+                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
                     <Text style={styles.daftarTitle}>دفترچه‌ی من — صفحه‌ی ۱۴۲</Text>
                     <Text style={styles.daftarQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.daftarSub}>۱۵۶ روزه که این خط‌ها رو می‌کشم</Text>
                     <View style={styles.timerRow}>
-                      {['۰۵','۱۱','۰۹','۱۸','۴۴'].map((value, index) => (
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
                         <View key={`${value}-${index}`} style={styles.timerUnitBox}>
                           <Text style={styles.timerUnitValue}>{value}</Text>
                         </View>
@@ -732,11 +751,12 @@ export function ReelStudioScreen() {
 
                 {selectedTemplate.style === 'ghamgin' ? (
                   <View style={styles.templatePreviewStack}>
+                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
                     <Text style={styles.ghamginEyebrow}>هنوز باورم نشده</Text>
                     <Text style={styles.ghamginQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.ghamginSub}>۲۳۱ روز از نبودنت گذشت</Text>
                     <View style={styles.timerRow}>
-                      {['۰۷','۱۹','۱۴','۴۲','۰۹'].map((value, index) => (
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
                         <View key={`${value}-${index}`} style={styles.timerUnitBox}>
                           <Text style={styles.timerUnitValue}>{value}</Text>
                         </View>
@@ -748,11 +768,12 @@ export function ReelStudioScreen() {
 
                 {selectedTemplate.style === 'masire-tanhaei' ? (
                   <View style={styles.templatePreviewStack}>
+                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
                     <Text style={styles.masireEyebrow}>از این‌جا به بعد</Text>
                     <Text style={styles.masireQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.masireSub}>۹۰ روزه که این مسیر رو تنها می‌رم</Text>
                     <View style={styles.timerRow}>
-                      {['۰۳','۰۰','۰۶','۲۷','۱۵'].map((value, index) => (
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
                         <View key={`${value}-${index}`} style={styles.timerUnitBox}>
                           <Text style={styles.timerUnitValue}>{value}</Text>
                         </View>
