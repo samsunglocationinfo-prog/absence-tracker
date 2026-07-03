@@ -1,0 +1,57 @@
+import { ThemeTokens } from './types';
+
+export const darkTheme: ThemeTokens = {
+  colors: {
+    background: '#060816',
+    surface: '#101830',
+    surfaceElevated: '#1d2748',
+    textPrimary: '#f5f7ff',
+    textSecondary: '#8ca0ca',
+    textTertiary: '#5d6b93',
+    accent: '#8fb5ff',
+    accentSoft: '#84a6dc',
+    accentSubtle: 'rgba(143, 181, 255, 0.12)',
+    border: 'rgba(255,255,255,0.12)',
+    borderLight: 'rgba(255,255,255,0.06)',
+    success: '#7dd3c7',
+    successSubtle: 'rgba(125, 211, 199, 0.12)',
+    error: '#ff6b6b',
+    errorSubtle: 'rgba(255, 107, 107, 0.12)',
+    warning: '#f4c27a',
+    warningSubtle: 'rgba(244, 194, 122, 0.12)',
+    info: '#6db3f2',
+    infoSubtle: 'rgba(109, 179, 242, 0.12)',
+  },
+  spacing: {
+    xs: 4,
+    sm: 8,
+    md: 16,
+    lg: 20,
+    xl: 24,
+    '2xl': 32,
+  },
+  typography: {
+    title: 28,
+    subtitle: 18,
+    body: 14,
+    caption: 12,
+    micro: 11,
+  },
+  radius: {
+    sm: 8,
+    md: 12,
+    lg: 16,
+    xl: 24,
+    full: 9999,
+  },
+  shadows: {
+    sm: '0 2px 4px rgba(0, 0, 0, 0.1)',
+    md: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    lg: '0 8px 24px rgba(0, 0, 0, 0.2)',
+  },
+  transitions: {
+    fast: 150,
+    base: 250,
+    slow: 350,
+  },
+};
