@@ -14,7 +14,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import * as ImagePicker from 'expo-image-picker';
 import { Audio } from 'expo-av';
 import { FFmpeg } from '@ffmpeg/ffmpeg';
-import { fetchFile } from '@ffmpeg/util';
+import { fetchFile, toBlobURL } from '@ffmpeg/util';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { ScreenContainer } from '../components/ui/ScreenContainer';
@@ -36,7 +36,7 @@ type ReelTemplate = {
   colors: [string, string];
   accent: string;
   overlay: string;
-  style: 'khatereh' | 'daftarcheh' | 'ghamgin' | 'masire-tanhaei';
+  style: 'khatereh' | 'daftarcheh' | 'ghamgin' | 'masire-tanhaei' | 'neon-ember' | 'neon-rain' | 'neon-drift';
 };
 
 const createTemplatePreviewUri = (template: ReelTemplate) => {
@@ -107,6 +107,42 @@ const REEL_TEMPLATES: ReelTemplate[] = [
     accent: '#9ec2b0',
     overlay: 'rgba(5, 8, 9, 0.38)',
     style: 'masire-tanhaei',
+  },
+  {
+    id: 'neon-ember',
+    name: 'نئون ember',
+    subtitle: 'دود، برق و شب',
+    quote: 'در این شب، فقط لامپ‌های خسته می‌درخشند',
+    caption: 'برای لحظه‌ای که همه‌چیز از دور می‌سوزد',
+    badge: 'ember',
+    colors: ['#08060b', '#180b17'],
+    accent: '#ff5f7a',
+    overlay: 'rgba(8, 6, 11, 0.72)',
+    style: 'neon-ember',
+  },
+  {
+    id: 'neon-rain',
+    name: 'باران نئون',
+    subtitle: 'برق، شبنم و سکوت',
+    quote: 'هر قطره از پنجره می‌رسد و نام تو را تکرار می‌کند',
+    caption: 'یک ریلز برای شب‌هایی که هنوز نمی‌توانی بخندی',
+    badge: 'rain',
+    colors: ['#040913', '#0c1424'],
+    accent: '#48d8ff',
+    overlay: 'rgba(4, 9, 19, 0.74)',
+    style: 'neon-rain',
+  },
+  {
+    id: 'neon-drift',
+    name: 'سرگردانی نئون',
+    subtitle: 'مه و چراغ‌های دور',
+    quote: 'در میان این شهر، من و تاریکی فقط یک چراغ مشترک داریم',
+    caption: 'برای شب‌های طولانی و دل‌های بی‌قرار',
+    badge: 'drift',
+    colors: ['#06090d', '#111827'],
+    accent: '#9b7cff',
+    overlay: 'rgba(6, 9, 13, 0.76)',
+    style: 'neon-drift',
   },
 ];
 
@@ -322,9 +358,12 @@ export function ReelStudioScreen() {
       setExportUrl('');
       const ffmpeg = new FFmpeg();
       ffmpegRef.current = ffmpeg;
+      const baseUrl = typeof window !== 'undefined' ? `${window.location.origin}/` : '/';
+      const coreURL = await toBlobURL(`${baseUrl}ffmpeg-core.js`, 'text/javascript');
+      const wasmURL = await toBlobURL(`${baseUrl}ffmpeg-core.wasm`, 'application/wasm');
       await ffmpeg.load({
-        coreURL: '/ffmpeg-core.js',
-        wasmURL: '/ffmpeg-core.wasm',
+        coreURL,
+        wasmURL,
       });
 
       const activePhotoUri = (photos[activePhotoIndex] ?? photos[0]).uri;
@@ -714,7 +753,9 @@ export function ReelStudioScreen() {
               <View style={[styles.glassOverlay, { backgroundColor: selectedTemplate.overlay }]}>
                 {selectedTemplate.style === 'khatereh' ? (
                   <View style={styles.templatePreviewStack}>
-                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
                     <View style={styles.khaterehPolaroid}>
                       <View style={styles.khaterehFrame} />
                       <Text style={styles.khaterehFrameLabel}>تابستون ۱۴۰۱</Text>
@@ -734,7 +775,9 @@ export function ReelStudioScreen() {
 
                 {selectedTemplate.style === 'daftarcheh' ? (
                   <View style={styles.templatePreviewStack}>
-                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
                     <Text style={styles.daftarTitle}>دفترچه‌ی من — صفحه‌ی ۱۴۲</Text>
                     <Text style={styles.daftarQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.daftarSub}>۱۵۶ روزه که این خط‌ها رو می‌کشم</Text>
@@ -751,7 +794,9 @@ export function ReelStudioScreen() {
 
                 {selectedTemplate.style === 'ghamgin' ? (
                   <View style={styles.templatePreviewStack}>
-                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
                     <Text style={styles.ghamginEyebrow}>هنوز باورم نشده</Text>
                     <Text style={styles.ghamginQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.ghamginSub}>۲۳۱ روز از نبودنت گذشت</Text>
@@ -768,7 +813,9 @@ export function ReelStudioScreen() {
 
                 {selectedTemplate.style === 'masire-tanhaei' ? (
                   <View style={styles.templatePreviewStack}>
-                    <Text style={styles.liveTimeText}>{liveTime || 'در حال به‌روزرسانی…'}</Text>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
                     <Text style={styles.masireEyebrow}>از این‌جا به بعد</Text>
                     <Text style={styles.masireQuote}>{selectedTemplate.quote}</Text>
                     <Text style={styles.masireSub}>۹۰ روزه که این مسیر رو تنها می‌رم</Text>
@@ -780,6 +827,67 @@ export function ReelStudioScreen() {
                       ))}
                     </View>
                     <Text style={styles.masireCaption}>{selectedTemplate.caption}</Text>
+                  </View>
+                ) : null}
+
+                {selectedTemplate.style === 'neon-ember' ? (
+                  <View style={styles.templatePreviewStack}>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
+                    <View style={{ width: 146, height: 146, borderRadius: 73, borderWidth: 2, borderColor: 'rgba(255,95,122,0.5)', backgroundColor: 'rgba(255,95,122,0.14)', alignItems: 'center', justifyContent: 'center', marginTop: 2, shadowColor: '#ff5f7a', shadowOpacity: 0.35, shadowRadius: 16, shadowOffset: { width: 0, height: 0 } }}>
+                      <View style={{ width: 96, height: 96, borderRadius: 48, backgroundColor: '#ff5f7a', opacity: 0.95 }} />
+                    </View>
+                    <Text style={{ color: '#ffe4ea', fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 260, fontWeight: '700' }}>{selectedTemplate.quote}</Text>
+                    <Text style={{ color: '#ff9fb0', fontSize: 11, textAlign: 'center' }}>شبِ دود و برق</Text>
+                    <View style={styles.timerRow}>
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
+                        <View key={`${value}-${index}`} style={styles.timerUnitBox}>
+                          <Text style={styles.timerUnitValue}>{value}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <Text style={{ color: '#ff9fb0', fontSize: 11, lineHeight: 16, textAlign: 'center', maxWidth: 260 }}>{selectedTemplate.caption}</Text>
+                  </View>
+                ) : null}
+
+                {selectedTemplate.style === 'neon-rain' ? (
+                  <View style={styles.templatePreviewStack}>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
+                    <View style={{ width: 158, height: 92, borderWidth: 1, borderColor: 'rgba(72,216,255,0.35)', borderRadius: 12, backgroundColor: 'rgba(72,216,255,0.08)', marginTop: 2, shadowColor: '#48d8ff', shadowOpacity: 0.25, shadowRadius: 14, shadowOffset: { width: 0, height: 0 } }} />
+                    <Text style={{ color: '#e9fbff', fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 260, fontWeight: '700' }}>{selectedTemplate.quote}</Text>
+                    <Text style={{ color: '#7ddfff', fontSize: 11, textAlign: 'center' }}>باران از پنجره می‌گذرد</Text>
+                    <View style={styles.timerRow}>
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
+                        <View key={`${value}-${index}`} style={styles.timerUnitBox}>
+                          <Text style={styles.timerUnitValue}>{value}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <Text style={{ color: '#7ddfff', fontSize: 11, lineHeight: 16, textAlign: 'center', maxWidth: 260 }}>{selectedTemplate.caption}</Text>
+                  </View>
+                ) : null}
+
+                {selectedTemplate.style === 'neon-drift' ? (
+                  <View style={styles.templatePreviewStack}>
+                    <Text style={{ color: 'rgba(255,255,255,0.74)', fontSize: 11, letterSpacing: 0.4, textAlign: 'center', marginBottom: 2 }}>
+                      {liveTime || 'در حال به‌روزرسانی…'}
+                    </Text>
+                    <View style={{ width: 156, height: 156, borderRadius: 78, borderWidth: 2, borderColor: 'rgba(155,124,255,0.45)', alignItems: 'center', justifyContent: 'center', marginTop: 2, shadowColor: '#9b7cff', shadowOpacity: 0.3, shadowRadius: 18, shadowOffset: { width: 0, height: 0 } }}>
+                      <View style={{ width: 92, height: 92, borderRadius: 46, backgroundColor: '#9b7cff' }} />
+                    </View>
+                    <Text style={{ color: '#efeaff', fontSize: 15, lineHeight: 22, textAlign: 'center', maxWidth: 260, fontWeight: '700' }}>{selectedTemplate.quote}</Text>
+                    <Text style={{ color: '#b9a8ff', fontSize: 11, textAlign: 'center' }}>سرگردانی در شهرِ مه‌آلود</Text>
+                    <View style={styles.timerRow}>
+                      {[previewClock.month, previewClock.day, previewClock.hour, previewClock.minute, previewClock.second].map((value, index) => (
+                        <View key={`${value}-${index}`} style={styles.timerUnitBox}>
+                          <Text style={styles.timerUnitValue}>{value}</Text>
+                        </View>
+                      ))}
+                    </View>
+                    <Text style={{ color: '#b9a8ff', fontSize: 11, lineHeight: 16, textAlign: 'center', maxWidth: 260 }}>{selectedTemplate.caption}</Text>
                   </View>
                 ) : null}
               </View>
@@ -999,7 +1107,7 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.14)',
   },
   previewGradient: {
-    minHeight: 300,
+    minHeight: 320,
     justifyContent: 'flex-end',
   },
   previewImage: {
@@ -1023,7 +1131,9 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   glassOverlay: {
-    padding: spacing.lg,
+    paddingHorizontal: spacing.lg,
+    paddingTop: spacing.md,
+    paddingBottom: spacing.lg,
     backgroundColor: 'rgba(7, 9, 21, 0.42)',
   },
   glassLabel: {
@@ -1035,36 +1145,53 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   templatePreviewStack: {
-    gap: 8,
+    gap: 10,
+    alignItems: 'center',
+    width: '100%',
   },
   timerRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    justifyContent: 'center',
     gap: 8,
-    marginTop: 4,
+    marginTop: 2,
+    width: '100%',
   },
   timerUnitBox: {
-    minWidth: 44,
-    paddingVertical: 6,
+    minWidth: 46,
+    paddingVertical: 7,
     paddingHorizontal: 8,
-    borderRadius: 8,
+    borderRadius: 10,
     backgroundColor: 'rgba(255,255,255,0.08)',
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.12)',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 3 },
   },
   timerUnitValue: {
     color: '#fff',
     fontSize: 14,
     fontWeight: '700',
   },
+  liveTimeText: {
+    color: 'rgba(255,255,255,0.74)',
+    fontSize: 11,
+    letterSpacing: 0.4,
+    textAlign: 'center',
+    marginBottom: 2,
+  },
   khaterehPolaroid: {
     alignSelf: 'center',
-    width: 170,
+    width: 174,
     backgroundColor: '#efe6d8',
     padding: 10,
-    borderRadius: 3,
-    marginBottom: 6,
+    borderRadius: 4,
+    marginBottom: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0,0,0,0.08)',
   },
   khaterehFrame: {
     width: '100%',
@@ -1084,23 +1211,30 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     fontStyle: 'italic',
     textAlign: 'center',
+    maxWidth: 252,
+    fontWeight: '600',
   },
   khaterehSub: {
     color: 'rgba(255,255,255,0.72)',
     fontSize: 11,
     textAlign: 'center',
+    marginTop: -2,
   },
   khaterehCaption: {
     color: 'rgba(255,255,255,0.72)',
     fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
+    maxWidth: 260,
+    marginTop: 2,
   },
   daftarTitle: {
     color: '#2b2c33',
     fontSize: 14,
     fontWeight: '700',
     textAlign: 'center',
+    marginTop: 2,
+    letterSpacing: 0.2,
   },
   daftarQuote: {
     color: '#2b2c33',
@@ -1108,23 +1242,30 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
     fontWeight: '700',
+    maxWidth: 260,
+    letterSpacing: 0.1,
   },
   daftarSub: {
     color: 'rgba(43,44,51,0.74)',
     fontSize: 11,
     textAlign: 'center',
+    marginTop: -2,
   },
   daftarCaption: {
     color: 'rgba(43,44,51,0.74)',
     fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
+    maxWidth: 260,
+    marginTop: 2,
   },
   ghamginEyebrow: {
     color: '#8390a6',
     fontSize: 11,
     textAlign: 'center',
     letterSpacing: 1.2,
+    marginTop: 2,
+    fontWeight: '600',
   },
   ghamginQuote: {
     color: '#dfe6ee',
@@ -1132,23 +1273,30 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
     fontStyle: 'italic',
+    maxWidth: 260,
+    fontWeight: '600',
   },
   ghamginSub: {
     color: '#8390a6',
     fontSize: 11,
     textAlign: 'center',
+    marginTop: -2,
   },
   ghamginCaption: {
     color: '#8390a6',
     fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
+    maxWidth: 260,
+    marginTop: 2,
   },
   masireEyebrow: {
     color: '#7c8a84',
     fontSize: 11,
     textAlign: 'center',
     letterSpacing: 1.2,
+    marginTop: 2,
+    fontWeight: '600',
   },
   masireQuote: {
     color: '#dfe6e1',
@@ -1156,17 +1304,22 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     textAlign: 'center',
     fontWeight: '300',
+    maxWidth: 260,
+    letterSpacing: 0.1,
   },
   masireSub: {
     color: '#7c8a84',
     fontSize: 11,
     textAlign: 'center',
+    marginTop: -2,
   },
   masireCaption: {
     color: '#7c8a84',
     fontSize: 11,
     lineHeight: 16,
     textAlign: 'center',
+    maxWidth: 260,
+    marginTop: 2,
   },
   glassTitle: {
     color: '#f6f2ff',
